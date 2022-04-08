@@ -1,0 +1,5 @@
+{
+    "apiUrl": "{{MONOBANK_API_URL}}",
+    "accessToken": "{{MONOBANK_ACCESS_TOKEN}}",
+    "cardNumber": "{{MONOBANK_CARD_NUMBER}}"
+}

@@ -1,38 +1,42 @@
 import crypto from 'crypto';
-import XmlHttpClient from '../infrastructure/XmlHttpClient';
+import logger from '../../infrastructure/logger';
+import XmlHttpClient from '../../infrastructure/XmlHttpClient';
 
 export interface PrivatbankStatement {
-    appcode : string,
-    description : string,
-    trandate : string,
-    trantime : string,
-    cardamount : string,
-    rest : string
-    terminal : string
+    appcode: string,
+    description: string,
+    trandate: string,
+    trantime: string,
+    cardamount: string,
+    rest: string
+    terminal: string
 }
 
 export interface PrivatbankOptions {
-    apiUrl : string,
-    merchantId : string,
-    merchantPassword : string
+    apiUrl: string,
+    merchantId: string,
+    merchantPassword: string,
+    cardNumber: string
 }
 
-export default class PrivatbankClient {
+export default class PrivatbankClient implements BankClient {
     private xmlHttpClient;
-    private merchantId;
-    private merchantPassword;
+    private readonly merchantId;
+    private readonly merchantPassword;
+    private readonly cardNumber;
 
     constructor(options: PrivatbankOptions) {
         this.merchantId = options.merchantId;
         this.merchantPassword = options.merchantPassword;
+        this.cardNumber = options.cardNumber;
 
         this.xmlHttpClient = new XmlHttpClient({
             baseUrl : options.apiUrl
-        })
+        });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async getStatement(cardNumber: string, fromTime: number, toTime: number) {
+    async getStatements(fromTime: number, toTime: number) {
         const data = {
             oper    : 'cmt',
             wait    : '0',
@@ -41,21 +45,26 @@ export default class PrivatbankClient {
                 prop : [
                     { attrs: { name: 'sd', value: '01.05.2021' } },
                     { attrs: { name: 'ed', value: '01.06.2021' } },
-                    { attrs: { name: 'card', value: cardNumber } }
+                    { attrs: { name: 'card', value: this.cardNumber } }
                 ]
             }
         };
 
         const request = {
             attrs    : { version: '1.0' },
-            merchant : this.buildMerchantParams(data),
+            merchant : {
+                id        : this.merchantId,
+                signature : this.buildMerchantSignature(data)
+            },
             data
         };
 
         const { response } = await this.xmlHttpClient.request('/rest_fiz', { request });
 
         if (!response || response.data.error) {
-            throw new Error('@REMOVE');
+            logger.error('Invalid privatbank statement response', { response });
+
+            throw new Error('PrivatbankClient Error');
         }
 
         const statementsRows = response.data.info.statements.statement;
@@ -79,20 +88,12 @@ export default class PrivatbankClient {
         };
     }
 
-    private buildMerchantParams(data: unknown) {
+    private buildMerchantSignature(data: unknown) {
         const dataXml = this.xmlHttpClient.buildXml(data, { onlyBody: true });
+        const sourceString = `${dataXml}${this.merchantPassword}`;
 
-        return {
-            id        : this.merchantId,
-            signature : this.buildMerchantSignature(this.merchantPassword, dataXml)
-        }
-    }
-
-    private buildMerchantSignature(merchantPassword: string, dataXml: string): string {
         const md5 = crypto.createHash('md5');
         const sha1 = crypto.createHash('sha1');
-
-        const sourceString = `${dataXml}${merchantPassword}`;
 
         const firstHash = md5.update(sourceString).digest('hex');
         const secondHash = sha1.update(firstHash).digest('hex');

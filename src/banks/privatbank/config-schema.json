@@ -1,0 +1,6 @@
+{
+    "apiUrl": [ "required", "string" ],
+    "merchantId": [ "required", "string" ],
+    "merchantPassword": [ "required", "string" ],
+    "cardNumber": [ "required", "string", { "length_equal": 16 } ]
+}

@@ -1,17 +1,25 @@
+import config from './config';
 import StatementExporter from './StatementExporter';
+import logger from './infrastructure/logger';
 
 const EXIT_STATUS_SUCCESS = 0;
 const EXIT_STATUS_ERROR = 1;
 
 async function main() {
     try {
-        const statementExporter = new StatementExporter();
+        logger.info('Started statement export process');
+
+        const statementExporter = new StatementExporter(config);
 
         await statementExporter.run();
 
+        logger.info('Completed statement export successfully');
+
         process.exit(EXIT_STATUS_SUCCESS);
     } catch (error) {
-        console.log(error);
+        if (error instanceof Error) {
+            logger.error('Failed statement export process', { reason: error.message });
+        }
 
         process.exit(EXIT_STATUS_ERROR);
     }

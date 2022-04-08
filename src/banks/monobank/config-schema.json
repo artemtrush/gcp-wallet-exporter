@@ -1,0 +1,5 @@
+{
+    "apiUrl": [ "required", "string" ],
+    "accessToken": [ "required", "string" ],
+    "cardNumber": [ "required", "string", { "length_equal": 16 } ]
+}

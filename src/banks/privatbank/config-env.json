@@ -1,0 +1,6 @@
+{
+    "apiUrl": "{{PRIVATBANK_API_URL}}",
+    "merchantId": "{{PRIVATBANK_MERCHANT_ID}}",
+    "merchantPassword": "{{PRIVATBANK_MERCHANT_PASSWORD}}",
+    "cardNumber": "{{PRIVATBANK_CARD_NUMBER}}"
+}

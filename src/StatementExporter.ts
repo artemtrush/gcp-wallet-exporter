@@ -1,13 +1,21 @@
-import MonobankClient from './monobank/MonobankClient';
-import PrivatbankClient from './privatbank/PrivatbankClient';
+import { buildBankClient } from './banks'
+
+export interface StatementExporterOptions {
+    bankName: string
+}
 
 export default class StatementExporter {
+    private bankName;
+
+    constructor(options: StatementExporterOptions) {
+        this.bankName = options.bankName;
+    }
+
     async run() {
-        const monobankClient = new MonobankClient({ apiUrl, accessToken });
-        const privatbankClient = new PrivatbankClient({ apiUrl, merchantId, merchantPassword });
+        const bankClient = buildBankClient(this.bankName);
 
-        // const data = await privatbankClient.getStatement();
+        const data = await bankClient.getStatements(0, 0);
 
-        // console.log(JSON.stringify(data, null, 4));
+        console.log(JSON.stringify(data, null, 4));
     }
 }

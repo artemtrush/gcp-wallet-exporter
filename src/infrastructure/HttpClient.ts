@@ -1,12 +1,12 @@
 import axios from 'axios';
+import logger from './logger';
 
-const HTTP_REQUEST_TIMEOUT_MS = 10000;
-const HTTP_STATUS_OK = 200;
+const HTTP_REQUEST_TIMEOUT_MS = 20000;
 
 export interface HttpClientOptions {
-    baseUrl : string,
-    timeout? : number,
-    headers? : Record<string, string>
+    baseUrl: string,
+    timeout?: number,
+    headers?: Record<string, string>
 }
 
 export default class HttpClient {
@@ -21,22 +21,46 @@ export default class HttpClient {
     }
 
     async get(endpoint: string) {
-        const { status, data } = await this.axiosInstance.get(endpoint);
+        try {
+            const response = await this.axiosInstance.get(endpoint);
 
-        if (status !== HTTP_STATUS_OK) {
-            throw new Error('@REMOVE');
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    logger.error('Http response error [GET]', {
+                        endpoint,
+                        status : error.response.status,
+                        reason : error.response.data
+                    });
+                } else {
+                    logger.error('Http request error [GET]', { reason: error.message });
+                }
+            }
+
+            throw new Error('HttpClient Error');
         }
-
-        return data;
     }
 
     async post(endpoint: string, data: unknown) {
-        const response = await this.axiosInstance.post(endpoint, data);
+        try {
+            const response = await this.axiosInstance.post(endpoint, data);
 
-        if (response.status !== HTTP_STATUS_OK) {
-            throw new Error('@REMOVE');
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    logger.error('Http response error [POST]', {
+                        endpoint,
+                        status : error.response.status,
+                        reason : error.response.data
+                    });
+                } else {
+                    logger.error('Http request error [POST]', { reason: error.message });
+                }
+            }
+
+            throw new Error('HttpClient Error');
         }
-
-        return response.data;
     }
 }
