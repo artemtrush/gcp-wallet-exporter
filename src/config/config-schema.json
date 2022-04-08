@@ -1,0 +1,3 @@
+{
+    "bankName": [ "required", "string", { "one_of": [ "monobank", "privatbank" ] } ]
+}

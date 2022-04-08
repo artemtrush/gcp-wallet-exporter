@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "tsc",
+    "start": "node dist",
+    "build": "rimraf dist && tsc",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix"
   },
+  "pre-commit": [ "lint" ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/artemtrush/gcp-wallet-exporter.git"
@@ -19,6 +21,9 @@
   "homepage": "https://github.com/artemtrush/gcp-wallet-exporter#readme",
   "dependencies": {
     "axios": "^0.26.1",
+    "confme": "^1.1.1",
+    "pino": "^7.9.2",
+    "pino-pretty": "^7.6.0",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
@@ -27,6 +32,8 @@
     "@types/xml2js": "^0.4.9",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
-    "eslint": "^8.11.0"
+    "eslint": "^8.11.0",
+    "pre-commit": "^1.2.2",
+    "rimraf": "^3.0.2"
   }
 }
