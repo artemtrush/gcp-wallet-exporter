@@ -31,7 +31,7 @@ export default class XmlHttpClient {
         return response;
     }
 
-    buildXml(data: unknown, options?: { onlyBody: boolean }): string {
+    buildXml(data: unknown, options?: { onlyBody: boolean }) {
         let sourceObject = data;
 
         if (options?.onlyBody) {

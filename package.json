@@ -8,7 +8,9 @@
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix"
   },
-  "pre-commit": [ "lint" ],
+  "pre-commit": [
+    "lint"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/artemtrush/gcp-wallet-exporter.git"
@@ -22,12 +24,15 @@
   "dependencies": {
     "axios": "^0.26.1",
     "confme": "^1.1.1",
+    "dateformat": "^4.6.3",
+    "merchant-category-code": "^1.0.1",
     "pino": "^7.9.2",
     "pino-pretty": "^7.6.0",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.2",
+    "@types/dateformat": "^3.0.1",
     "@types/node": "^17.0.23",
     "@types/xml2js": "^0.4.9",
     "@typescript-eslint/eslint-plugin": "^5.16.0",

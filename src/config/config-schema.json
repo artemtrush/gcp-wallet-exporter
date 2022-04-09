@@ -1,3 +1,5 @@
 {
-    "bankName": [ "required", "string", { "one_of": [ "monobank", "privatbank" ] } ]
+    "bankName": [ "required", "string", { "one_of": [ "monobank", "privatbank" ] } ],
+    "timeZone": [ "required", "string" ],
+    "maxMonthsToExport": [ "required", "positive_integer" ]
 }

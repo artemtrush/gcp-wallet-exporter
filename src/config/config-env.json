@@ -1,3 +1,5 @@
 {
-    "bankName": "{{BANK_NAME}}"
+    "bankName": "{{BANK_NAME}}",
+    "timeZone": "{{TIME_ZONE}}",
+    "maxMonthsToExport": "{{MAX_MONTHS_TO_EXPORT}}"
 }

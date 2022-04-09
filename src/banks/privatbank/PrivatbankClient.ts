@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import dateFormat from 'dateformat';
 import logger from '../../infrastructure/logger';
 import XmlHttpClient from '../../infrastructure/XmlHttpClient';
 
@@ -35,16 +36,19 @@ export default class PrivatbankClient implements BankClient {
         });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async getStatements(fromTime: number, toTime: number) {
+    async getStatements(startDate: Date, endDate: Date): Promise<Statement[]> {
+        const datePattern = 'dd.mm.yyyy';
+        const formattedStartDate = dateFormat(startDate, datePattern);
+        const formattedEndDate = dateFormat(endDate, datePattern);
+
         const data = {
             oper    : 'cmt',
             wait    : '0',
             test    : '0',
             payment : {
                 prop : [
-                    { attrs: { name: 'sd', value: '01.05.2021' } },
-                    { attrs: { name: 'ed', value: '01.06.2021' } },
+                    { attrs: { name: 'sd', value: formattedStartDate } },
+                    { attrs: { name: 'ed', value: formattedEndDate } },
                     { attrs: { name: 'card', value: this.cardNumber } }
                 ]
             }
@@ -67,25 +71,39 @@ export default class PrivatbankClient implements BankClient {
             throw new Error('PrivatbankClient Error');
         }
 
-        const statementsRows = response.data.info.statements.statement;
-        const formattedStatements = [];
+        const bankStatementsRows = response.data.info.statements.statement || [];
 
-        for (const statementRow of statementsRows) {
-            formattedStatements.push(this.formatStatement(statementRow.attrs));
-        }
+        const statements = bankStatementsRows.map((row: { attrs: PrivatbankStatement }) => {
+            return this.formatStatement(row.attrs);
+        });
 
-        return formattedStatements;
+        return statements;
     }
 
-    private formatStatement(sourceStatement: PrivatbankStatement): Statement {
+    private formatStatement(bankStatement: PrivatbankStatement): Statement {
+        const amount = this.convertAmountStringToCents(bankStatement.cardamount);
+        const balance = this.convertAmountStringToCents(bankStatement.rest);
+        const datetime = `${bankStatement.trandate} ${bankStatement.trantime}`;
+
         return {
-            id          : sourceStatement.appcode,
-            amount      : 50,
-            balance     : 50,
-            time        : 0,
-            description : sourceStatement.description,
-            category    : sourceStatement.terminal
+            id          : bankStatement.appcode,
+            amount      : amount,
+            balance     : balance,
+            datetime    : datetime,
+            description : bankStatement.description
         };
+    }
+
+    private convertAmountStringToCents(amountString: string) {
+        const cents = parseInt(amountString.split('.').join(''));
+
+        if (!Number.isInteger(cents)) {
+            logger.error('Invalid amount string received', { amountString });
+
+            throw new Error('PrivatbankClient Error');
+        }
+
+        return cents;
     }
 
     private buildMerchantSignature(data: unknown) {

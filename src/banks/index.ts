@@ -4,7 +4,7 @@ import PrivatbankClient from './privatbank/PrivatbankClient';
 
 export const BANK_NAMES = {
     MONOBANK   : 'monobank',
-    PRIVATBANK : 'privarbank',
+    PRIVATBANK : 'privatbank',
 };
 
 function loadBankOptions(bankName: string) {

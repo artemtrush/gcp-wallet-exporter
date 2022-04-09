@@ -7,7 +7,7 @@ const EXIT_STATUS_ERROR = 1;
 
 async function main() {
     try {
-        logger.info('Started statement export process');
+        logger.info('Started statement export process', config);
 
         const statementExporter = new StatementExporter(config);
 
