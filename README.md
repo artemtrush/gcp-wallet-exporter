@@ -1,1 +1,1 @@
-# gcp-wallet-exporter
+# bank-statement-exporter

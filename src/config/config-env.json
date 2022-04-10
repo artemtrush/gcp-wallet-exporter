@@ -5,7 +5,6 @@
 
     "mailTo": "{{MAIL_TO}}",
     "mailFrom": "{{MAIL_FROM}}",
-    "mailSubject": "{{MAIL_SUBJECT}}",
 
     "smtpHost": "{{SMTP_HOST}}",
     "smtpPort": "{{SMTP_PORT}}",

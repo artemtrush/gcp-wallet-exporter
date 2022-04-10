@@ -48,12 +48,20 @@ export default class EmailSender {
     }
 
     async send(mail: Mail) {
-        await this.smtpClient.sendMail({
-            from        : mail.from,
-            to          : mail.to,
-            subject     : mail.subject,
-            text        : mail.text,
-            attachments : mail.attachments
-        });
+        try {
+            await this.smtpClient.sendMail({
+                from        : mail.from,
+                to          : mail.to,
+                subject     : mail.subject,
+                text        : mail.text,
+                attachments : mail.attachments
+            });
+        } catch (error) {
+            if (error instanceof Error) {
+                logger.error('Failed to send email', { reason: error.message });
+            }
+
+            throw new Error('EmailSender Error');
+        }
     }
 }

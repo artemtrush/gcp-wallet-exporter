@@ -5,7 +5,6 @@
 
     "mailTo": [ "required", "string" ],
     "mailFrom": [ "required", "string" ],
-    "mailSubject": [ "required", "string" ],
 
     "smtpHost": [ "required", "string" ],
     "smtpPort": [ "required", "positive_integer" ],

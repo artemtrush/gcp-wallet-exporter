@@ -1,5 +1,5 @@
 {
-  "name": "gcp-wallet-exporter",
+  "name": "bank-statement-exporter",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -13,14 +13,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/artemtrush/gcp-wallet-exporter.git"
+    "url": "git+https://github.com/artemtrush/bank-statement-exporter.git"
   },
   "author": "artemtrush",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/artemtrush/gcp-wallet-exporter/issues"
+    "url": "https://github.com/artemtrush/bank-statement-exporter/issues"
   },
-  "homepage": "https://github.com/artemtrush/gcp-wallet-exporter#readme",
+  "homepage": "https://github.com/artemtrush/bank-statement-exporter#readme",
   "dependencies": {
     "axios": "^0.26.1",
     "confme": "^1.1.1",
