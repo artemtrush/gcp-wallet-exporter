@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import dateFormat from 'dateformat';
-import logger from '../../infrastructure/logger';
-import XmlHttpClient from '../../infrastructure/XmlHttpClient';
+import logger from '../../../infrastructure/logger';
+import XmlHttpClient from '../../../infrastructure/XmlHttpClient';
 
 export interface PrivatbankStatement {
     appcode: string,

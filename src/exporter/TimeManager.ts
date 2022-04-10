@@ -1,22 +1,35 @@
-import logger from './infrastructure/logger';
+import logger from '../infrastructure/logger';
+
+export interface TimeManagerOptions {
+    timeZone: string,
+    maxMonthsToExport: number
+}
 
 export default class TimeManager {
-    setGlobalTimeZone(timeZone: string) {
-        process.env.TZ = timeZone;
+    private readonly timeZone;
+    private readonly maxMonthsToExport;
+
+    constructor(options: TimeManagerOptions) {
+        this.timeZone = options.timeZone;
+        this.maxMonthsToExport = options.maxMonthsToExport;
+    }
+
+    initGlobalTimeZone() {
+        process.env.TZ = this.timeZone;
     }
 
     /* Period limitations:
     ** Min period (1 day): from [2000-01-01 00:00:00.000] to [2000-01-01 23:59:59.999]
     ** Max period (1 month): from [2000-01-01 00:00:00.000] to [2000-01-31 23:59:59.999]
     */
-    buildExportPeriod(lastExportTime: number, maxMonthsToExport: number): { startDate: Date, endDate: Date } {
-        const startDate = this.buildExportStartDate(lastExportTime, maxMonthsToExport);
+    buildExportPeriod(lastExportTime: number): { startDate: Date, endDate: Date } {
+        const startDate = this.buildExportStartDate(lastExportTime);
         const endDate = this.buildExportEndDate(startDate);
 
         return { startDate, endDate };
     }
 
-    private buildExportStartDate(lastExportTime: number, maxMonthsToExport: number): Date {
+    private buildExportStartDate(lastExportTime: number): Date {
         let startDate;
 
         if (lastExportTime) {
@@ -25,7 +38,7 @@ export default class TimeManager {
         } else {
             // The first day of the month in the past
             startDate = new Date();
-            startDate.setMonth(startDate.getMonth() - maxMonthsToExport);
+            startDate.setMonth(startDate.getMonth() - this.maxMonthsToExport);
             startDate.setDate(1);
             startDate.setHours(0, 0, 0, 0);
         }

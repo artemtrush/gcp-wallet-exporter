@@ -1,6 +1,6 @@
 import config from './config';
-import StatementExporter from './StatementExporter';
 import logger from './infrastructure/logger';
+import StatementExporter from './exporter/StatementExporter';
 
 const EXIT_STATUS_SUCCESS = 0;
 const EXIT_STATUS_ERROR = 1;

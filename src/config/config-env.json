@@ -1,5 +1,14 @@
 {
     "bankName": "{{BANK_NAME}}",
     "timeZone": "{{TIME_ZONE}}",
-    "maxMonthsToExport": "{{MAX_MONTHS_TO_EXPORT}}"
+    "maxMonthsToExport": "{{MAX_MONTHS_TO_EXPORT}}",
+
+    "mailTo": "{{MAIL_TO}}",
+    "mailFrom": "{{MAIL_FROM}}",
+    "mailSubject": "{{MAIL_SUBJECT}}",
+
+    "smtpHost": "{{SMTP_HOST}}",
+    "smtpPort": "{{SMTP_PORT}}",
+    "smtpUsername": "{{SMTP_USERNAME}}",
+    "smtpPassword": "{{SMTP_PASSWORD}}"
 }

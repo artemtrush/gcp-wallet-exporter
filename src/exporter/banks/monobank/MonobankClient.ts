@@ -1,7 +1,7 @@
 import dateFormat from 'dateformat';
 import mcc from 'merchant-category-code';
-import HttpClient from '../../infrastructure/HttpClient';
-import logger from '../../infrastructure/logger';
+import logger from '../../../infrastructure/logger';
+import HttpClient from '../../../infrastructure/HttpClient';
 
 export interface MonobankStatement {
     id: string,

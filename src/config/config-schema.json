@@ -1,5 +1,14 @@
 {
     "bankName": [ "required", "string", { "one_of": [ "monobank", "privatbank" ] } ],
     "timeZone": [ "required", "string" ],
-    "maxMonthsToExport": [ "required", "positive_integer" ]
+    "maxMonthsToExport": [ "required", "positive_integer" ],
+
+    "mailTo": [ "required", "string" ],
+    "mailFrom": [ "required", "string" ],
+    "mailSubject": [ "required", "string" ],
+
+    "smtpHost": [ "required", "string" ],
+    "smtpPort": [ "required", "positive_integer" ],
+    "smtpUsername": [ "required", "string" ],
+    "smtpPassword": [ "required", "string" ]
 }
