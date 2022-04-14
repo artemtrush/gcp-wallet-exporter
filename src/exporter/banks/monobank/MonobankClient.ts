@@ -13,19 +13,20 @@ export interface MonobankStatement {
     comment?: string
 }
 
-export interface MonobankOptions {
+export interface MonobankOptions extends BankOptions {
     apiUrl: string,
-    accessToken: string,
-    cardNumber: string
+    accessToken: string
 }
 
 export default class MonobankClient implements BankClient {
     private httpClient;
+    private readonly bankName;
     private readonly cardNumber;
     private accountId?: string;
 
     constructor(options: MonobankOptions) {
-        this.cardNumber = options.cardNumber
+        this.bankName = options.bankName;
+        this.cardNumber = options.cardNumber;
 
         this.httpClient = new HttpClient({
             baseUrl : options.apiUrl,
@@ -33,6 +34,14 @@ export default class MonobankClient implements BankClient {
                 'X-Token' : options.accessToken
             }
         });
+    }
+
+    getBankName() {
+        return this.bankName;
+    }
+
+    getCardNumber() {
+        return this.cardNumber;
     }
 
     async getStatements(startDate: Date, endDate: Date): Promise<Statement[]> {

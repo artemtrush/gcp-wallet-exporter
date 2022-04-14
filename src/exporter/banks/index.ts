@@ -15,7 +15,10 @@ function loadBankOptions(bankName: string) {
 }
 
 export function buildBankClient(bankName: string): BankClient {
-    const options = loadBankOptions(bankName);
+    const options = {
+        ...loadBankOptions(bankName),
+        bankName
+    };
 
     const builders = {
         [BANK_NAMES.MONOBANK]   : () => new MonobankClient(options),

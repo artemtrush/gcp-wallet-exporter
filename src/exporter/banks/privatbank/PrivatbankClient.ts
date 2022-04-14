@@ -13,27 +13,36 @@ export interface PrivatbankStatement {
     terminal: string
 }
 
-export interface PrivatbankOptions {
+export interface PrivatbankOptions extends BankOptions {
     apiUrl: string,
     merchantId: string,
-    merchantPassword: string,
-    cardNumber: string
+    merchantPassword: string
 }
 
 export default class PrivatbankClient implements BankClient {
     private xmlHttpClient;
+    private readonly bankName;
+    private readonly cardNumber;
     private readonly merchantId;
     private readonly merchantPassword;
-    private readonly cardNumber;
 
     constructor(options: PrivatbankOptions) {
+        this.bankName = options.bankName;
+        this.cardNumber = options.cardNumber;
         this.merchantId = options.merchantId;
         this.merchantPassword = options.merchantPassword;
-        this.cardNumber = options.cardNumber;
 
         this.xmlHttpClient = new XmlHttpClient({
             baseUrl : options.apiUrl
         });
+    }
+
+    getBankName() {
+        return this.bankName;
+    }
+
+    getCardNumber() {
+        return this.cardNumber;
     }
 
     async getStatements(startDate: Date, endDate: Date): Promise<Statement[]> {
