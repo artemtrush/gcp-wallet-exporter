@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/artemtrush/bank-statement-exporter#readme",
   "dependencies": {
+    "@google-cloud/storage": "^5.19.0",
     "axios": "^0.26.1",
     "confme": "^1.1.1",
     "csv-stringify": "^6.0.5",

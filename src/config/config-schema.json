@@ -1,13 +1,20 @@
 {
     "bankName": [ "required", "string", { "one_of": [ "monobank", "privatbank" ] } ],
-    "timeZone": [ "required", "string" ],
     "maxMonthsToExport": [ "required", "positive_integer" ],
+    "timeZone": [ "required", "string" ],
 
-    "mailTo": [ "required", "string" ],
-    "mailFrom": [ "required", "string" ],
+    "cloudStorage": { "nested_object": {
+        "bucketName": [ "required", "string" ]
+    } },
 
-    "smtpHost": [ "required", "string" ],
-    "smtpPort": [ "required", "positive_integer" ],
-    "smtpUsername": [ "required", "string" ],
-    "smtpPassword": [ "required", "string" ]
+    "mail": { "nested_object": {
+        "from": [ "required", "string" ],
+        "to": [ "required", "string" ],
+        "smtp": { "nested_object": {
+            "host": [ "required", "string" ],
+            "port": [ "required", "positive_integer" ],
+            "username": [ "required", "string" ],
+            "password": [ "required", "string" ]
+        } }
+    } }
 }

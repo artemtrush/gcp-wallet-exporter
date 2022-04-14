@@ -2,7 +2,14 @@
 declare module 'confme';
 declare module 'merchant-category-code';
 
+interface BankOptions {
+    bankName: string,
+    cardNumber: string
+}
+
 interface BankClient {
+    getBankName: () => string,
+    getCardNumber: () => string,
     getStatements: (startDate: Date, endDate: endDate) => Promise<Statement[]>
 }
 

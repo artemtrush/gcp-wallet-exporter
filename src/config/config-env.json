@@ -1,13 +1,20 @@
 {
     "bankName": "{{BANK_NAME}}",
-    "timeZone": "{{TIME_ZONE}}",
     "maxMonthsToExport": "{{MAX_MONTHS_TO_EXPORT}}",
+    "timeZone": "{{TIME_ZONE}}",
 
-    "mailTo": "{{MAIL_TO}}",
-    "mailFrom": "{{MAIL_FROM}}",
+    "cloudStorage": {
+        "bucketName": "{{CLOUD_STORAGE_BUCKET_NAME}}"
+    },
 
-    "smtpHost": "{{SMTP_HOST}}",
-    "smtpPort": "{{SMTP_PORT}}",
-    "smtpUsername": "{{SMTP_USERNAME}}",
-    "smtpPassword": "{{SMTP_PASSWORD}}"
+    "mail": {
+        "from": "{{MAIL_FROM}}",
+        "to": "{{MAIL_TO}}",
+        "smtp": {
+            "host": "{{SMTP_HOST}}",
+            "port": "{{SMTP_PORT}}",
+            "username": "{{SMTP_USERNAME}}",
+            "password": "{{SMTP_PASSWORD}}"
+        }
+    }
 }

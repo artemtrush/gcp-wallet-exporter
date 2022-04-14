@@ -1,17 +1,17 @@
 import logger from '../infrastructure/logger';
 
 export interface TimeManagerOptions {
-    timeZone: string,
-    maxMonthsToExport: number
+    maxMonthsToExport: number,
+    timeZone: string
 }
 
 export default class TimeManager {
-    private readonly timeZone;
     private readonly maxMonthsToExport;
+    private readonly timeZone;
 
     constructor(options: TimeManagerOptions) {
-        this.timeZone = options.timeZone;
         this.maxMonthsToExport = options.maxMonthsToExport;
+        this.timeZone = options.timeZone;
     }
 
     initGlobalTimeZone() {
