@@ -1,55 +1,57 @@
 import dateFormat from 'dateformat';
 import logger from '../infrastructure/logger';
-import EmailSender, { EmailSenderOptions } from '../infrastructure/EmailSender';
-import TimeManager, { TimeManagerOptions } from './TimeManager';
+import CloudStorage, { CloudStorageOptions } from '../infrastructure/CloudStorage';
+import MailSender, { MailSenderOptions } from '../infrastructure/MailSender';
+import TimeManager from './TimeManager';
 import CsvGenerator from './CsvGenerator';
 import { buildBankClient } from './banks'
 
-export interface StatementExporterOptions extends TimeManagerOptions, EmailSenderOptions  {
+export interface StatementExporterOptions {
     bankName: string,
-    mailTo: string,
-    mailFrom: string
+    maxMonthsToExport: number,
+    timeZone: string
+    cloudStorage: CloudStorageOptions,
+    mail: MailSenderOptions,
 }
 
 export default class StatementExporter {
     private readonly bankClient;
+    private readonly cloudStorage;
     private readonly timeManager;
     private readonly csvGenerator;
-    private readonly emailSender;
-
-    private readonly bankName;
-    private readonly mailTo;
-    private readonly mailFrom;
+    private readonly mailSender;
 
     constructor(options: StatementExporterOptions) {
-        this.bankName = options.bankName;
-        this.mailTo = options.mailTo;
-        this.mailFrom = options.mailFrom;
-
         this.bankClient = buildBankClient(options.bankName);
+        this.cloudStorage = new CloudStorage(options.cloudStorage);
         this.timeManager = new TimeManager(options);
         this.csvGenerator = new CsvGenerator();
-        this.emailSender = new EmailSender(options);
+        this.mailSender = new MailSender(options.mail);
+    }
+
+    async init() {
+        this.timeManager.initGlobalTimeZone();
+        await this.mailSender.verifyConnection();
     }
 
     async run() {
-        this.timeManager.initGlobalTimeZone();
-        await this.emailSender.verify();
-
         const lastExportTime = await this.getLastExportTime();
         const { startDate, endDate } = this.timeManager.buildExportPeriod(lastExportTime);
 
         logger.info('Get statements for export period', { startDate, endDate });
-
         const statements = await this.bankClient.getStatements(startDate, endDate);
 
         if (statements.length) {
-            logger.info('Generate statements csv', { statementsCount: statements.length });
+            const statementsFileName = this.buildStatementsFileName(startDate, endDate);
 
+            logger.info('Generate statements csv', { statementsFileName });
             const statementsCsv = this.csvGenerator.generateStatementsCsv(statements);
-            const statementsCsvFilename = this.buildStatementsCsvFilename(startDate, endDate);
 
-            await this.sendStatementsCsvByMail(statementsCsv, statementsCsvFilename);
+            logger.info('Save statements csv to cloud storage');
+            await this.saveStatementsCsvToCloud(statementsCsv, statementsFileName);
+
+            logger.info('Send statements csv by mail');
+            await this.sendStatementsCsvByMail(statementsCsv, statementsFileName);
         } else {
             logger.info('No statements found for specified period');
         }
@@ -58,36 +60,55 @@ export default class StatementExporter {
     }
 
     private async getLastExportTime() {
-        return 0;
+        const folderName = this.buildBankCaption();
+        const settingsJson = await this.cloudStorage.getFile(`${folderName}/settings.json`);
+
+        if (!settingsJson) {
+            return 0;
+        }
+
+        const settings = JSON.parse(settingsJson);
+
+        return settings.lastExportTime;
     }
 
-    private async setLastExportTime(value: number) {
-        console.log('SET', value);
+    private async setLastExportTime(lastExportTime: number) {
+        const folderName = this.buildBankCaption();
+        const settingsJson = JSON.stringify({ lastExportTime });
+
+        await this.cloudStorage.saveFile(`${folderName}/settings.json`, settingsJson);
     }
 
-    private async sendStatementsCsvByMail(statementsCsv: string, statementsCsvFilename: string) {
-        logger.info('Send statements csv by mail', {
-            target   : this.mailTo,
-            filename : statementsCsvFilename
-        });
+    private async saveStatementsCsvToCloud(statementsCsv: string, statementsFileName: string) {
+        const folderName = this.buildBankCaption();
 
-        const subject = `Statement export [${this.bankName}][${statementsCsvFilename}]`;
+        await this.cloudStorage.saveFile(`${folderName}/${statementsFileName}`, statementsCsv);
+    }
 
-        await this.emailSender.send({
-            from        : this.mailFrom,
-            to          : this.mailTo,
+    private async sendStatementsCsvByMail(statementsCsv: string, statementsFileName: string) {
+        const subject = `Statement export [${this.buildBankCaption()}]`;
+
+        await this.mailSender.send({
             subject     : subject,
             text        : '',
             attachments : [
                 {
-                    filename : statementsCsvFilename,
-                    content  : statementsCsv
+                    fileName    : statementsFileName,
+                    fileContent : statementsCsv
                 }
             ]
         });
     }
 
-    private buildStatementsCsvFilename(startDate: Date, endDate: Date) {
+    private buildBankCaption() {
+        const bankName = this.bankClient.getBankName();
+        const cardNumber = this.bankClient.getCardNumber();
+        const cardLastDigits = cardNumber.substring(cardNumber.length - 4);
+
+        return `${bankName}-${cardLastDigits}`;
+    }
+
+    private buildStatementsFileName(startDate: Date, endDate: Date) {
         const datePattern = 'yyyy-mm-dd';
         const startString = dateFormat(startDate, datePattern);
         const endString = dateFormat(endDate, datePattern);
@@ -99,3 +120,4 @@ export default class StatementExporter {
         return `${startString}_${endString}.csv`;
     }
 }
+
