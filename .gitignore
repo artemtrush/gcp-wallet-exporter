@@ -1,3 +1,4 @@
 node_modules
 /dist
 .env
+bank-statement-exporter-*.zip

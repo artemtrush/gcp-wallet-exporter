@@ -2,11 +2,16 @@
   "name": "bank-statement-exporter",
   "version": "1.0.0",
   "description": "",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    ".env.defaults"
+  ],
   "scripts": {
-    "start": "node dist",
     "build": "rimraf dist && tsc",
     "lint": "eslint . --ext .ts",
-    "lint-fix": "eslint . --ext .ts --fix"
+    "lint-fix": "eslint . --ext .ts --fix",
+    "pack": "npm-pack-zip --info --add-version"
   },
   "pre-commit": [
     "lint"
@@ -42,6 +47,7 @@
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
     "eslint": "^8.11.0",
+    "npm-pack-zip": "^1.3.0",
     "pre-commit": "^1.2.2",
     "rimraf": "^3.0.2"
   }
