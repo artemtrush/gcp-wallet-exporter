@@ -3,7 +3,7 @@ import mcc from 'merchant-category-code';
 import logger from '../../../infrastructure/logger';
 import HttpClient from '../../../infrastructure/HttpClient';
 
-export interface MonobankStatement {
+export interface MonobankTransaction {
     id: string,
     time: number,
     description: string,
@@ -44,42 +44,42 @@ export default class MonobankClient implements BankClient {
         return this.cardNumber;
     }
 
-    async getStatements(startDate: Date, endDate: Date): Promise<Statement[]> {
+    async getTransactions(startDate: Date, endDate: Date): Promise<Transaction[]> {
         const accountId = await this.getAccoundId();
         const startTime = startDate.getTime();
         const endTime = endDate.getTime();
 
-        const bankStatements = await this.httpClient.get(`/personal/statement/${accountId}/${startTime}/${endTime}`);
+        const bankTransactions = await this.httpClient.get(`/personal/statement/${accountId}/${startTime}/${endTime}`);
 
-        const statements = bankStatements.map((bankStatement: MonobankStatement) => {
-            return this.formatStatement(bankStatement);
+        const transactions = bankTransactions.map((bankTransaction: MonobankTransaction) => {
+            return this.formatTransaction(bankTransaction);
         });
 
-        return statements;
+        return transactions;
     }
 
-    private formatStatement(bankStatement: MonobankStatement): Statement {
-        const datetime = dateFormat(bankStatement.time * 1000, 'yyyy-mm-dd HH:MM:ss');
-        const description = this.formatStatementDescription(bankStatement);
+    private formatTransaction(bankTransaction: MonobankTransaction): Transaction {
+        const datetime = dateFormat(bankTransaction.time * 1000, 'yyyy-mm-dd HH:MM:ss');
+        const description = this.formatTransactionDescription(bankTransaction);
 
         return {
-            id          : bankStatement.id,
-            amount      : bankStatement.amount,
-            balance     : bankStatement.balance,
+            id          : bankTransaction.id,
+            amount      : bankTransaction.amount,
+            balance     : bankTransaction.balance,
             datetime    : datetime,
             description : description
         };
     }
 
-    private formatStatementDescription(bankStatement: MonobankStatement) {
-        const descriptionParts = [ bankStatement.description ];
+    private formatTransactionDescription(bankTransaction: MonobankTransaction) {
+        const descriptionParts = [ bankTransaction.description ];
 
-        if (bankStatement.comment) {
-            descriptionParts.push(bankStatement.comment);
+        if (bankTransaction.comment) {
+            descriptionParts.push(bankTransaction.comment);
         }
 
-        if (bankStatement.mcc) {
-            const merchantCategory = mcc(bankStatement.mcc);
+        if (bankTransaction.mcc) {
+            const merchantCategory = mcc(bankTransaction.mcc);
 
             if (merchantCategory) {
                 descriptionParts.push(merchantCategory.edited_description);

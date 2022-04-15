@@ -3,7 +3,7 @@ import dateFormat from 'dateformat';
 import logger from '../../../infrastructure/logger';
 import XmlHttpClient from '../../../infrastructure/XmlHttpClient';
 
-export interface PrivatbankStatement {
+export interface PrivatbankTransaction {
     appcode: string,
     description: string,
     trandate: string,
@@ -45,7 +45,7 @@ export default class PrivatbankClient implements BankClient {
         return this.cardNumber;
     }
 
-    async getStatements(startDate: Date, endDate: Date): Promise<Statement[]> {
+    async getTransactions(startDate: Date, endDate: Date): Promise<Transaction[]> {
         const datePattern = 'dd.mm.yyyy';
         const formattedStartDate = dateFormat(startDate, datePattern);
         const formattedEndDate = dateFormat(endDate, datePattern);
@@ -80,26 +80,26 @@ export default class PrivatbankClient implements BankClient {
             throw new Error('PrivatbankClient Error');
         }
 
-        const bankStatementsRows = response.data.info.statements.statement || [];
+        const bankTransactionsRows = response.data.info.statements.statement || [];
 
-        const statements = bankStatementsRows.map((row: { attrs: PrivatbankStatement }) => {
-            return this.formatStatement(row.attrs);
+        const transactions = bankTransactionsRows.map((row: { attrs: PrivatbankTransaction }) => {
+            return this.formatTransaction(row.attrs);
         });
 
-        return statements;
+        return transactions;
     }
 
-    private formatStatement(bankStatement: PrivatbankStatement): Statement {
-        const amount = this.convertAmountStringToCents(bankStatement.cardamount);
-        const balance = this.convertAmountStringToCents(bankStatement.rest);
-        const datetime = `${bankStatement.trandate} ${bankStatement.trantime}`;
+    private formatTransaction(bankTransaction: PrivatbankTransaction): Transaction {
+        const amount = this.convertAmountStringToCents(bankTransaction.cardamount);
+        const balance = this.convertAmountStringToCents(bankTransaction.rest);
+        const datetime = `${bankTransaction.trandate} ${bankTransaction.trantime}`;
 
         return {
-            id          : bankStatement.appcode,
+            id          : bankTransaction.appcode,
             amount      : amount,
             balance     : balance,
             datetime    : datetime,
-            description : bankStatement.description
+            description : bankTransaction.description
         };
     }
 

@@ -9,9 +9,14 @@ const STATEMENT_HEADER = {
 };
 
 export default class CsvGenerator {
-    generateStatementsCsv(statements: Statement[]) {
-        const sortedStatements = [ ...statements ].sort((first, second) => first.datetime > second.datetime ? 1 : -1);
-        const formattedStatements = sortedStatements.map(statement => this.formatStatementForCsv(statement));
+    generateStatementCsv(transactions: Transaction[]) {
+        const sortedTransactions = [ ...transactions ].sort((first, second) => {
+            return first.datetime > second.datetime ? 1 : -1;
+        });
+
+        const formattedTransactions = sortedTransactions.map(transaction => {
+            return this.formatTransactionForCsv(transaction);
+        });
 
         const options: Options = {
             quoted  : true,
@@ -19,14 +24,14 @@ export default class CsvGenerator {
             columns : STATEMENT_HEADER
         };
 
-        return stringify(formattedStatements, options);
+        return stringify(formattedTransactions, options);
     }
 
-    private formatStatementForCsv(statement: Statement) {
+    private formatTransactionForCsv(transaction: Transaction) {
         return {
-            ...statement,
-            amount  : this.formatAmountOfMoneyForCsv(statement.amount),
-            balance : this.formatAmountOfMoneyForCsv(statement.balance),
+            ...transaction,
+            amount  : this.formatAmountOfMoneyForCsv(transaction.amount),
+            balance : this.formatAmountOfMoneyForCsv(transaction.balance),
         };
     }
 

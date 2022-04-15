@@ -10,10 +10,10 @@ interface BankOptions {
 interface BankClient {
     getBankName: () => string,
     getCardNumber: () => string,
-    getStatements: (startDate: Date, endDate: endDate) => Promise<Statement[]>
+    getTransactions: (startDate: Date, endDate: endDate) => Promise<Transaction[]>
 }
 
-interface Statement {
+interface Transaction {
     id: string,
     amount: number,
     balance: number,

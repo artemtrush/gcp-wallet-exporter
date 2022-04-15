@@ -38,22 +38,22 @@ export default class StatementExporter {
         const lastExportTime = await this.getLastExportTime();
         const { startDate, endDate } = this.timeManager.buildExportPeriod(lastExportTime);
 
-        logger.info('Get statements for export period', { startDate, endDate });
-        const statements = await this.bankClient.getStatements(startDate, endDate);
+        logger.info('Get transactions for export period', { startDate, endDate });
+        const transactions = await this.bankClient.getTransactions(startDate, endDate);
 
-        if (statements.length) {
-            const statementsFileName = this.buildStatementsFileName(startDate, endDate);
+        if (transactions.length) {
+            const statementFileName = this.buildStatementFileName(startDate, endDate);
 
-            logger.info('Generate statements csv', { statementsFileName });
-            const statementsCsv = this.csvGenerator.generateStatementsCsv(statements);
+            logger.info('Generate statement csv', { statementFileName });
+            const statementCsv = this.csvGenerator.generateStatementCsv(transactions);
 
-            logger.info('Save statements csv to cloud storage');
-            await this.saveStatementsCsvToCloud(statementsCsv, statementsFileName);
+            logger.info('Save statement csv to cloud storage');
+            await this.saveStatementCsvToCloud(statementCsv, statementFileName);
 
-            logger.info('Send statements csv by mail');
-            await this.sendStatementsCsvByMail(statementsCsv, statementsFileName);
+            logger.info('Send statement csv by mail');
+            await this.sendStatementCsvByMail(statementCsv, statementFileName);
         } else {
-            logger.info('No statements found for specified period');
+            logger.info('No transactions found for specified period');
         }
 
         await this.setLastExportTime(endDate.getTime());
@@ -79,13 +79,13 @@ export default class StatementExporter {
         await this.cloudStorage.saveFile(`${folderName}/settings.json`, settingsJson);
     }
 
-    private async saveStatementsCsvToCloud(statementsCsv: string, statementsFileName: string) {
+    private async saveStatementCsvToCloud(statementCsv: string, statementFileName: string) {
         const folderName = this.buildBankCaption();
 
-        await this.cloudStorage.saveFile(`${folderName}/${statementsFileName}`, statementsCsv);
+        await this.cloudStorage.saveFile(`${folderName}/${statementFileName}`, statementCsv);
     }
 
-    private async sendStatementsCsvByMail(statementsCsv: string, statementsFileName: string) {
+    private async sendStatementCsvByMail(statementCsv: string, statementFileName: string) {
         const subject = `Statement export [${this.buildBankCaption()}]`;
 
         await this.mailSender.send({
@@ -93,8 +93,8 @@ export default class StatementExporter {
             text        : '',
             attachments : [
                 {
-                    fileName    : statementsFileName,
-                    fileContent : statementsCsv
+                    fileName    : statementFileName,
+                    fileContent : statementCsv
                 }
             ]
         });
@@ -108,7 +108,7 @@ export default class StatementExporter {
         return `${bankName}-${cardLastDigits}`;
     }
 
-    private buildStatementsFileName(startDate: Date, endDate: Date) {
+    private buildStatementFileName(startDate: Date, endDate: Date) {
         const datePattern = 'yyyy-mm-dd';
         const startString = dateFormat(startDate, datePattern);
         const endString = dateFormat(endDate, datePattern);
