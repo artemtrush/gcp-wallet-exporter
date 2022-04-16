@@ -80,7 +80,13 @@ export default class PrivatbankClient implements BankClient {
             throw new Error('PrivatbankClient Error');
         }
 
-        const bankTransactionsRows = response.data.info.statements.statement || [];
+        let bankTransactionsRows = response.data.info.statements.statement;
+
+        if (bankTransactionsRows === undefined) {
+            bankTransactionsRows = [];
+        } else if (!Array.isArray(bankTransactionsRows)) {
+            bankTransactionsRows = [ bankTransactionsRows ];
+        }
 
         const transactions = bankTransactionsRows.map((row: { attrs: PrivatbankTransaction }) => {
             return this.formatTransaction(row.attrs);
