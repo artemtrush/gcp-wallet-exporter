@@ -1,6 +1,7 @@
 import confme from 'confme';
 import MonobankClient from './monobank/MonobankClient';
 import PrivatbankClient from './privatbank/PrivatbankClient';
+import { HttpProxyOptions } from '../../infrastructure/HttpClient';
 
 export const BANK_NAMES = {
     MONOBANK   : 'monobank',
@@ -14,15 +15,15 @@ function loadBankOptions(bankName: string) {
     );
 }
 
-export function buildBankClient(bankName: string): BankClient {
+export function buildBankClient(bankName: string, proxy?: HttpProxyOptions): BankClient {
     const options = {
         ...loadBankOptions(bankName),
         bankName
     };
 
     const builders = {
-        [BANK_NAMES.MONOBANK]   : () => new MonobankClient(options),
-        [BANK_NAMES.PRIVATBANK] : () => new PrivatbankClient(options)
+        [BANK_NAMES.MONOBANK]   : () => new MonobankClient(options, proxy),
+        [BANK_NAMES.PRIVATBANK] : () => new PrivatbankClient(options, proxy)
     };
 
     return builders[bankName]();

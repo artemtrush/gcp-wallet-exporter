@@ -1,7 +1,7 @@
 import dateFormat from 'dateformat';
 import mcc from 'merchant-category-code';
 import logger from '../../../infrastructure/logger';
-import HttpClient from '../../../infrastructure/HttpClient';
+import HttpClient, { HttpProxyOptions } from '../../../infrastructure/HttpClient';
 
 export interface MonobankTransaction {
     id: string,
@@ -24,7 +24,7 @@ export default class MonobankClient implements BankClient {
     private readonly cardNumber;
     private accountId?: string;
 
-    constructor(options: MonobankOptions) {
+    constructor(options: MonobankOptions, proxy?: HttpProxyOptions) {
         this.bankName = options.bankName;
         this.cardNumber = options.cardNumber;
 
@@ -32,7 +32,8 @@ export default class MonobankClient implements BankClient {
             baseUrl : options.apiUrl,
             headers : {
                 'X-Token' : options.accessToken
-            }
+            },
+            proxy
         });
     }
 

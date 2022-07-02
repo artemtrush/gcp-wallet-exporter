@@ -16,5 +16,10 @@
             "username": [ "required", "string" ],
             "password": [ "required", "string" ]
         } }
+    } },
+
+    "proxy": { "nested_object": {
+        "host": [ "string" ],
+        "port": [ "positive_integer" ]
     } }
 }

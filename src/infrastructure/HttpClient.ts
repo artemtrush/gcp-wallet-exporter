@@ -1,22 +1,39 @@
 import axios from 'axios';
+import createHttpsProxyAgent from 'https-proxy-agent';
 import logger from './logger';
 
 const HTTP_REQUEST_TIMEOUT_MS = 20000;
 
+export interface HttpProxyOptions {
+    host: string,
+    port: number
+}
+
 export interface HttpClientOptions {
     baseUrl: string,
     timeout?: number,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
+    proxy?: HttpProxyOptions
 }
 
 export default class HttpClient {
     private axiosInstance;
 
     constructor(options: HttpClientOptions) {
+        let proxyAgent = null;
+
+        if (options.proxy && options.proxy.host) {
+            proxyAgent = createHttpsProxyAgent({
+                host : options.proxy.host,
+                port : options.proxy.port
+            });
+        }
+
         this.axiosInstance = axios.create({
-            baseURL : options.baseUrl,
-            timeout : options.timeout ?? HTTP_REQUEST_TIMEOUT_MS,
-            headers : options.headers ?? {}
+            baseURL    : options.baseUrl,
+            timeout    : options.timeout ?? HTTP_REQUEST_TIMEOUT_MS,
+            headers    : options.headers ?? {},
+            httpsAgent : proxyAgent
         });
     }
 

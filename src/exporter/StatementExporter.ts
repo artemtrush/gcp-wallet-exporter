@@ -2,6 +2,7 @@ import dateFormat from 'dateformat';
 import logger from '../infrastructure/logger';
 import CloudStorage, { CloudStorageOptions } from '../infrastructure/CloudStorage';
 import MailSender, { MailSenderOptions } from '../infrastructure/MailSender';
+import { HttpProxyOptions } from '../infrastructure/HttpClient';
 import TimeManager from './TimeManager';
 import CsvGenerator from './CsvGenerator';
 import { buildBankClient } from './banks'
@@ -12,6 +13,7 @@ export interface StatementExporterOptions {
     timeZone: string
     cloudStorage: CloudStorageOptions,
     mail: MailSenderOptions,
+    proxy: HttpProxyOptions
 }
 
 export default class StatementExporter {
@@ -22,7 +24,7 @@ export default class StatementExporter {
     private readonly mailSender;
 
     constructor(options: StatementExporterOptions) {
-        this.bankClient = buildBankClient(options.bankName);
+        this.bankClient = buildBankClient(options.bankName, options.proxy);
         this.cloudStorage = new CloudStorage(options.cloudStorage);
         this.timeManager = new TimeManager(options);
         this.csvGenerator = new CsvGenerator();

@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import dateFormat from 'dateformat';
 import logger from '../../../infrastructure/logger';
 import XmlHttpClient from '../../../infrastructure/XmlHttpClient';
+import { HttpProxyOptions } from '../../../infrastructure/HttpClient';
 
 export interface PrivatbankTransaction {
     appcode: string,
@@ -26,14 +27,15 @@ export default class PrivatbankClient implements BankClient {
     private readonly merchantId;
     private readonly merchantPassword;
 
-    constructor(options: PrivatbankOptions) {
+    constructor(options: PrivatbankOptions, proxy?: HttpProxyOptions) {
         this.bankName = options.bankName;
         this.cardNumber = options.cardNumber;
         this.merchantId = options.merchantId;
         this.merchantPassword = options.merchantPassword;
 
         this.xmlHttpClient = new XmlHttpClient({
-            baseUrl : options.apiUrl
+            baseUrl : options.apiUrl,
+            proxy
         });
     }
 

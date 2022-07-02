@@ -16,5 +16,10 @@
             "username": "{{SMTP_USERNAME}}",
             "password": "{{SMTP_PASSWORD}}"
         }
+    },
+
+    "proxy": {
+        "host": "{{PROXY_HOST}}",
+        "port": "{{PROXY_PORT}}"
     }
 }
