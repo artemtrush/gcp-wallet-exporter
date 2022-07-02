@@ -50,37 +50,37 @@ export default class MonobankClient implements BankClient {
         const startTime = startDate.getTime();
         const endTime = endDate.getTime();
 
-        const bankTransactions = await this.httpClient.get(`/personal/statement/${accountId}/${startTime}/${endTime}`);
+        const transactions = await this.httpClient.get(`/personal/statement/${accountId}/${startTime}/${endTime}`);
 
-        const transactions = bankTransactions.map((bankTransaction: MonobankTransaction) => {
-            return this.formatTransaction(bankTransaction);
+        const formattedTransactions = transactions.map((transaction: MonobankTransaction) => {
+            return this.formatTransaction(transaction);
         });
 
-        return transactions;
+        return formattedTransactions;
     }
 
-    private formatTransaction(bankTransaction: MonobankTransaction): Transaction {
-        const datetime = dateFormat(bankTransaction.time * 1000, 'yyyy-mm-dd HH:MM:ss');
-        const description = this.formatTransactionDescription(bankTransaction);
+    private formatTransaction(transaction: MonobankTransaction): Transaction {
+        const datetime = dateFormat(transaction.time * 1000, 'yyyy-mm-dd HH:MM:ss');
+        const description = this.formatTransactionDescription(transaction);
 
         return {
-            id          : bankTransaction.id,
-            amount      : bankTransaction.amount,
-            balance     : bankTransaction.balance,
+            id          : transaction.id,
+            amount      : transaction.amount,
+            balance     : transaction.balance,
             datetime    : datetime,
             description : description
         };
     }
 
-    private formatTransactionDescription(bankTransaction: MonobankTransaction) {
-        const descriptionParts = [ bankTransaction.description ];
+    private formatTransactionDescription(transaction: MonobankTransaction) {
+        const descriptionParts = [ transaction.description ];
 
-        if (bankTransaction.comment) {
-            descriptionParts.push(bankTransaction.comment);
+        if (transaction.comment) {
+            descriptionParts.push(transaction.comment);
         }
 
-        if (bankTransaction.mcc) {
-            const merchantCategory = mcc(bankTransaction.mcc);
+        if (transaction.mcc) {
+            const merchantCategory = mcc(transaction.mcc);
 
             if (merchantCategory) {
                 descriptionParts.push(merchantCategory.edited_description);

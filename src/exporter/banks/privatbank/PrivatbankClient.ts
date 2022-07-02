@@ -20,6 +20,9 @@ export interface PrivatbankOptions extends BankOptions {
     merchantPassword: string
 }
 
+const REQUEST_DATE_PATTERN = 'dd.mm.yyyy';
+const RESPONSE_DATE_PATTERN = 'yyyy-mm-dd';
+
 export default class PrivatbankClient implements BankClient {
     private xmlHttpClient;
     private readonly bankName;
@@ -48,9 +51,8 @@ export default class PrivatbankClient implements BankClient {
     }
 
     async getTransactions(startDate: Date, endDate: Date): Promise<Transaction[]> {
-        const datePattern = 'dd.mm.yyyy';
-        const formattedStartDate = dateFormat(startDate, datePattern);
-        const formattedEndDate = dateFormat(endDate, datePattern);
+        const requestStartDate = dateFormat(startDate, REQUEST_DATE_PATTERN);
+        const requestEndDate = dateFormat(endDate, REQUEST_DATE_PATTERN);
 
         const data = {
             oper    : 'cmt',
@@ -58,8 +60,8 @@ export default class PrivatbankClient implements BankClient {
             test    : '0',
             payment : {
                 prop : [
-                    { attrs: { name: 'sd', value: formattedStartDate } },
-                    { attrs: { name: 'ed', value: formattedEndDate } },
+                    { attrs: { name: 'sd', value: requestStartDate } },
+                    { attrs: { name: 'ed', value: requestEndDate } },
                     { attrs: { name: 'card', value: this.cardNumber } }
                 ]
             }
@@ -75,39 +77,53 @@ export default class PrivatbankClient implements BankClient {
         };
 
         const { response } = await this.xmlHttpClient.request('/rest_fiz', { request });
+        const transactions = this.extractTransactionsFromResponse(response);
 
-        if (!response || response.data.error) {
+        const responseStartDate = dateFormat(startDate, RESPONSE_DATE_PATTERN);
+        const responseEndDate = dateFormat(endDate, RESPONSE_DATE_PATTERN);
+
+        // Additionally filter transactions because of incorrect API behaviour
+        const filteredTransactions = transactions.filter((transaction: PrivatbankTransaction) => {
+            return transaction.trandate >= responseStartDate && transaction.trandate <= responseEndDate;
+        });
+
+        const formattedTransactions = filteredTransactions.map((transaction: PrivatbankTransaction) => {
+            return this.formatTransaction(transaction);
+        });
+
+        return formattedTransactions;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private extractTransactionsFromResponse(response: any) {
+        if (!response || !response.data || response.data.error) {
             logger.error('Invalid privatbank statement response', { response });
 
             throw new Error('PrivatbankClient Error');
         }
 
-        let bankTransactionsRows = response.data.info.statements.statement;
+        let transactionsRows = response.data.info.statements.statement;
 
-        if (bankTransactionsRows === undefined) {
-            bankTransactionsRows = [];
-        } else if (!Array.isArray(bankTransactionsRows)) {
-            bankTransactionsRows = [ bankTransactionsRows ];
+        if (transactionsRows === undefined) {
+            transactionsRows = [];
+        } else if (!Array.isArray(transactionsRows)) {
+            transactionsRows = [ transactionsRows ];
         }
 
-        const transactions = bankTransactionsRows.map((row: { attrs: PrivatbankTransaction }) => {
-            return this.formatTransaction(row.attrs);
-        });
-
-        return transactions;
+        return transactionsRows.map((row: { attrs: PrivatbankTransaction }) => row.attrs);
     }
 
-    private formatTransaction(bankTransaction: PrivatbankTransaction): Transaction {
-        const amount = this.convertAmountStringToCents(bankTransaction.cardamount);
-        const balance = this.convertAmountStringToCents(bankTransaction.rest);
-        const datetime = `${bankTransaction.trandate} ${bankTransaction.trantime}`;
+    private formatTransaction(transaction: PrivatbankTransaction): Transaction {
+        const amount = this.convertAmountStringToCents(transaction.cardamount);
+        const balance = this.convertAmountStringToCents(transaction.rest);
+        const datetime = `${transaction.trandate} ${transaction.trantime}`;
 
         return {
-            id          : bankTransaction.appcode,
+            id          : transaction.appcode,
             amount      : amount,
             balance     : balance,
             datetime    : datetime,
-            description : bankTransaction.description
+            description : transaction.description
         };
     }
 
