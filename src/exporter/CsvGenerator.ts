@@ -54,6 +54,6 @@ export default class CsvGenerator {
     }
 
     private formatDatetimeForCsv(datetime: number) {
-        return dateFormat(datetime, 'yyyy-mm-dd HH:MM:ss', true);
+        return dateFormat(datetime, 'dd-mm-yyyy HH:MM:ss', true);
     }
 }
