@@ -1,9 +1,11 @@
+import dateFormat from 'dateformat';
 import { stringify, Options } from 'csv-stringify/sync';
 
 const STATEMENT_HEADER = {
     id          : 'Id',
     datetime    : 'Datetime',
-    amount      : 'Amount',
+    income      : 'Income',
+    expense     : 'Expense',
     balance     : 'Balance',
     description : 'Description'
 };
@@ -28,14 +30,30 @@ export default class CsvGenerator {
     }
 
     private formatTransactionForCsv(transaction: Transaction) {
+        let income = '';
+        let expense = '';
+
+        if (transaction.amount > 0) {
+            income = this.formatAmountOfMoneyForCsv(transaction.amount);
+        } else {
+            expense = this.formatAmountOfMoneyForCsv(transaction.amount);
+        }
+
         return {
-            ...transaction,
-            amount  : this.formatAmountOfMoneyForCsv(transaction.amount),
-            balance : this.formatAmountOfMoneyForCsv(transaction.balance),
+            id          : transaction.id,
+            datetime    : this.formatDatetimeForCsv(transaction.datetime),
+            income      : income,
+            expense     : expense,
+            balance     : this.formatAmountOfMoneyForCsv(transaction.balance),
+            description : transaction.description
         };
     }
 
     private formatAmountOfMoneyForCsv(amount: number) {
         return (amount / 100).toFixed(2);
+    }
+
+    private formatDatetimeForCsv(datetime: number) {
+        return dateFormat(datetime, 'yyyy-mm-dd HH:MM:ss', true);
     }
 }

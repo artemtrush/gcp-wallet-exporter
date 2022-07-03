@@ -17,6 +17,6 @@ interface Transaction {
     id: string,
     amount: number,
     balance: number,
-    datetime: string, // 2020-01-01 00:00:00
+    datetime: number,
     description: string
 }

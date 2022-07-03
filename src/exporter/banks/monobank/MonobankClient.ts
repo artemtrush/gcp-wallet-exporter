@@ -1,4 +1,3 @@
-import dateFormat from 'dateformat';
 import mcc from 'merchant-category-code';
 import logger from '../../../infrastructure/logger';
 import HttpClient, { HttpProxyOptions } from '../../../infrastructure/HttpClient';
@@ -60,14 +59,13 @@ export default class MonobankClient implements BankClient {
     }
 
     private formatTransaction(transaction: MonobankTransaction): Transaction {
-        const datetime = dateFormat(transaction.time * 1000, 'yyyy-mm-dd HH:MM:ss');
         const description = this.formatTransactionDescription(transaction);
 
         return {
             id          : transaction.id,
             amount      : transaction.amount,
             balance     : transaction.balance,
-            datetime    : datetime,
+            datetime    : transaction.time * 1000,
             description : description
         };
     }

@@ -116,7 +116,7 @@ export default class PrivatbankClient implements BankClient {
     private formatTransaction(transaction: PrivatbankTransaction): Transaction {
         const amount = this.convertAmountStringToCents(transaction.cardamount);
         const balance = this.convertAmountStringToCents(transaction.rest);
-        const datetime = `${transaction.trandate} ${transaction.trantime}`;
+        const datetime = new Date(`${transaction.trandate} ${transaction.trantime}`).getTime();
 
         return {
             id          : transaction.appcode,
