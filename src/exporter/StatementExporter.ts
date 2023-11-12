@@ -2,18 +2,22 @@ import dateFormat from 'dateformat';
 import logger from '../infrastructure/logger';
 import CloudStorage, { CloudStorageOptions } from '../infrastructure/CloudStorage';
 import MailSender, { MailSenderOptions } from '../infrastructure/MailSender';
+import WalletClient, { WalletOptions } from '../infrastructure/WalletClient';
 import { HttpProxyOptions } from '../infrastructure/HttpClient';
 import TimeManager from './TimeManager';
 import CsvGenerator from './CsvGenerator';
 import { buildBankClient } from './banks'
+import { IMPORT_WAYS } from './constants';
 
 export interface StatementExporterOptions {
     bankName: string,
     maxMonthsToExport: number,
-    timeZone: string
+    timeZone: string,
+    importVia: string,
     cloudStorage: CloudStorageOptions,
-    mail: MailSenderOptions,
-    proxy: HttpProxyOptions
+    proxy: HttpProxyOptions,
+    wallet: WalletOptions,
+    mail: MailSenderOptions
 }
 
 export default class StatementExporter {
@@ -21,19 +25,31 @@ export default class StatementExporter {
     private readonly cloudStorage;
     private readonly timeManager;
     private readonly csvGenerator;
+    private readonly walletClient;
     private readonly mailSender;
+    private readonly importVia;
 
     constructor(options: StatementExporterOptions) {
         this.bankClient = buildBankClient(options.bankName, options.proxy);
         this.cloudStorage = new CloudStorage(options.cloudStorage);
         this.timeManager = new TimeManager(options);
         this.csvGenerator = new CsvGenerator();
-        this.mailSender = new MailSender(options.mail);
+
+        if (options.importVia === IMPORT_WAYS.WALLET_API) {
+            this.walletClient = new WalletClient(options.wallet);
+        } else if (options.importVia === IMPORT_WAYS.MAIL) {
+            this.mailSender = new MailSender(options.mail);
+        }
+
+        this.importVia = options.importVia;
     }
 
     async init() {
         this.timeManager.initGlobalTimeZone();
-        await this.mailSender.verifyConnection();
+
+        if (this.mailSender) {
+            await this.mailSender.verifyConnection();
+        }
     }
 
     async run() {
@@ -52,8 +68,13 @@ export default class StatementExporter {
             logger.info('Save statement csv to cloud storage');
             await this.saveStatementCsvToCloud(statementCsv, statementFileName);
 
-            logger.info('Send statement csv by mail');
-            await this.sendStatementCsvByMail(statementCsv, statementFileName);
+            if (this.importVia === IMPORT_WAYS.WALLET_API) {
+                logger.info('Send statement csv by wallet api');
+                await this.sendStatementCsvByWalletApi(statementCsv, statementFileName);
+            } else if (this.importVia === IMPORT_WAYS.MAIL) {
+                logger.info('Send statement csv by mail');
+                await this.sendStatementCsvByMail(statementCsv, statementFileName);
+            }
         } else {
             logger.info('No transactions found for specified period');
         }
@@ -87,7 +108,15 @@ export default class StatementExporter {
         await this.cloudStorage.saveFile(`${folderName}/${statementFileName}`, statementCsv);
     }
 
+    private async sendStatementCsvByWalletApi(statementCsv: string, statementFileName: string) {
+        if (!this.walletClient) throw new Error('Wallet client is not defined');
+
+        await this.walletClient.importStatementCsv(statementCsv, statementFileName);
+    }
+
     private async sendStatementCsvByMail(statementCsv: string, statementFileName: string) {
+        if (!this.mailSender) throw new Error('Mail sender is not defined');
+
         const subject = `Statement export [${this.buildBankCaption()}]`;
 
         await this.mailSender.send({

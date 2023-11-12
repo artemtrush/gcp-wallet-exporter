@@ -1,4 +1,5 @@
 node_modules
 /dist
+/run.js
 .env
 bank-statement-exporter-*.zip

@@ -2,9 +2,20 @@
     "bankName": "{{BANK_NAME}}",
     "maxMonthsToExport": "{{MAX_MONTHS_TO_EXPORT}}",
     "timeZone": "{{TIME_ZONE}}",
+    "importVia": "{{IMPORT_VIA}}",
 
     "cloudStorage": {
         "bucketName": "{{CLOUD_STORAGE_BUCKET_NAME}}"
+    },
+
+    "proxy": {
+        "host": "{{PROXY_HOST}}",
+        "port": "{{PROXY_PORT}}"
+    },
+
+    "wallet": {
+        "importUrl": "{{WALLET_IMPORT_URL}}",
+        "userId": "{{WALLET_USER_ID}}"
     },
 
     "mail": {
@@ -16,10 +27,5 @@
             "username": "{{SMTP_USERNAME}}",
             "password": "{{SMTP_PASSWORD}}"
         }
-    },
-
-    "proxy": {
-        "host": "{{PROXY_HOST}}",
-        "port": "{{PROXY_PORT}}"
     }
 }

@@ -16,6 +16,10 @@ export interface HttpClientOptions {
     proxy?: HttpProxyOptions
 }
 
+export interface HttpRequestOptions {
+    headers?: Record<string, string>
+}
+
 export default class HttpClient {
     private axiosInstance;
 
@@ -37,9 +41,9 @@ export default class HttpClient {
         });
     }
 
-    async get(endpoint: string) {
+    async get(endpoint: string, options: HttpRequestOptions = {}) {
         try {
-            const response = await this.axiosInstance.get(endpoint);
+            const response = await this.axiosInstance.get(endpoint, options);
 
             return response.data;
         } catch (error) {
@@ -59,9 +63,9 @@ export default class HttpClient {
         }
     }
 
-    async post(endpoint: string, data: unknown) {
+    async post(endpoint: string, data: unknown, options: HttpRequestOptions = {}) {
         try {
-            const response = await this.axiosInstance.post(endpoint, data);
+            const response = await this.axiosInstance.post(endpoint, data, options);
 
             return response.data;
         } catch (error) {
