@@ -8,6 +8,7 @@
     ".env.defaults"
   ],
   "scripts": {
+    "gcp-build": "echo 'Ignore building in GCP'",
     "build": "rimraf dist && tsc",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix",
