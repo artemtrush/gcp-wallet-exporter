@@ -3,7 +3,7 @@ import logger from './logger';
 
 export interface MailAttachment {
     fileName: string,
-    fileContent: string
+    fileContent: string | Buffer
 }
 
 export interface Mail {

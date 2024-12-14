@@ -1,6 +1,6 @@
 {
   "name": "bank-statement-exporter",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "main": "dist/index.js",
   "files": [
@@ -10,6 +10,7 @@
   "scripts": {
     "gcp-build": "echo 'Ignore building in GCP'",
     "build": "rimraf dist && tsc",
+    "start": "npm run build && node dist/run.js",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix",
     "pack": "npm-pack-zip --info --add-version"
@@ -38,6 +39,7 @@
     "nodemailer": "^6.7.6",
     "pino": "^8.1.0",
     "pino-pretty": "^8.1.0",
+    "xlsx": "^0.18.5",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {

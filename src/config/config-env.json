@@ -2,7 +2,9 @@
     "bankName": "{{BANK_NAME}}",
     "maxMonthsToExport": "{{MAX_MONTHS_TO_EXPORT}}",
     "timeZone": "{{TIME_ZONE}}",
+
     "importVia": "{{IMPORT_VIA}}",
+    "importFileFormat": "{{IMPORT_FILE_FORMAT}}",
 
     "cloudStorage": {
         "bucketName": "{{CLOUD_STORAGE_BUCKET_NAME}}"

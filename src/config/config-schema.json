@@ -2,7 +2,9 @@
     "bankName": [ "required", "string", { "one_of": [ "monobank", "privatbank" ] } ],
     "maxMonthsToExport": [ "required", "positive_integer" ],
     "timeZone": [ "required", "string" ],
+
     "importVia": [ "required", "string", { "one_of": [ "wallet_api", "mail", "none" ] } ],
+    "importFileFormat": [ "required", "string", { "one_of": [ "csv", "xlsx" ] } ],
 
     "cloudStorage": { "nested_object": {
         "bucketName": [ "required", "string" ]
