@@ -58,8 +58,6 @@ export default class StatementExporter {
     async run() {
         const lastExportTime = await this.getLastExportTime();
 
-        // const lastExportTime = new Date('2024-11-26T21:59:59.999Z').getTime();
-
         const { startDate, endDate } = this.timeManager.buildExportPeriod(lastExportTime);
 
         logger.info('Get transactions for export period', { startDate, endDate });
