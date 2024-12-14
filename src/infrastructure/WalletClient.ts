@@ -16,12 +16,12 @@ export default class WalletClient {
         this.userId = options.userId
     }
 
-    async importStatementCsv(statementCsv: string, statementFileName: string): Promise<void> {
-        await this.importClient.post('', statementCsv, {
+    async importStatementFile(statementFileContent: string | Buffer, statementFileName: string): Promise<void> {
+        await this.importClient.post('', statementFileContent, {
             headers : {
                 'x-userid'   : this.userId,
-                'x-filename' : statementFileName
-            }
+                'x-filename' : statementFileName,
+            },
         });
     }
 }

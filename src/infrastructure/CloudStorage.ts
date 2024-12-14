@@ -38,7 +38,7 @@ export default class CloudStorage {
         }
     }
 
-    async saveFile(filePath: string, fileContent: string) {
+    async saveFile(filePath: string, fileContent: string | Buffer) {
         try {
             await this.storage
                 .bucket(this.bucketName)
